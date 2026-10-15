@@ -1,0 +1,148 @@
+    section    |            table_name             | row_count 
+---------------+-----------------------------------+-----------
+ A. row counts | product_category_name_translation |        71
+ A. row counts | sellers                           |      3095
+ A. row counts | products                          |     32951
+ A. row counts | order_payments                    |    103886
+ A. row counts | customers                         |     99441
+ A. row counts | orders                            |     99441
+ A. row counts | order_reviews                     |     99224
+ A. row counts | order_items                       |    112650
+ A. row counts | geolocation                       |   1000163
+(9 rows)
+
+    section    |                check_name                | value 
+---------------+------------------------------------------+-------
+ B. duplicates | distinct customer_id in customers        | 99441
+ B. duplicates | distinct customer_unique_id in customers | 96096
+ B. duplicates | review_ids that appear more than once    |   789
+ B. duplicates | orders that have more than one review    |   547
+(4 rows)
+
+       section       | order_status | orders | null_purchase | null_approved | null_carrier_date | null_delivery_date | null_estimated_date 
+---------------------+--------------+--------+---------------+---------------+-------------------+--------------------+---------------------
+ C. orders by status | delivered    |  96478 |             0 |            14 |                 2 |                  8 |                   0
+ C. orders by status | shipped      |   1107 |             0 |             0 |                 0 |               1107 |                   0
+ C. orders by status | canceled     |    625 |             0 |           141 |               550 |                619 |                   0
+ C. orders by status | unavailable  |    609 |             0 |             0 |               609 |                609 |                   0
+ C. orders by status | invoiced     |    314 |             0 |             0 |               314 |                314 |                   0
+ C. orders by status | processing   |    301 |             0 |             0 |               301 |                301 |                   0
+ C. orders by status | created      |      5 |             0 |             5 |                 5 |                  5 |                   0
+ C. orders by status | approved     |      2 |             0 |             0 |                 2 |                  2 |                   0
+(8 rows)
+
+          section           |                     check_name                     | value 
+----------------------------+----------------------------------------------------+-------
+ C. products and categories | products with missing category                     |   610
+ C. products and categories | distinct categories without an English translation |     2
+(2 rows)
+
+              section              |             product_category_name             | products 
+-----------------------------------+-----------------------------------------------+----------
+ C. categories missing translation | portateis_cozinha_e_preparadores_de_alimentos |       10
+ C. categories missing translation | pc_gamer                                      |        3
+(2 rows)
+
+  section   |               check_name                | value 
+------------+-----------------------------------------+-------
+ D. orphans | order_items without a matching seller   |     0
+ D. orphans | order_items without a matching product  |     0
+ D. orphans | order_payments without a matching order |     0
+ D. orphans | orders without a matching customer      |     0
+ D. orphans | order_items without a matching order    |     0
+ D. orphans | INFO: orders with no review             |   768
+ D. orphans | INFO: orders with no items              |   775
+ D. orphans | INFO: orders with no payment            |     1
+ D. orphans | order_reviews without a matching order  |     0
+(9 rows)
+
+    section     |   first_purchase    |    last_purchase    |   first_delivery    |    last_delivery    | last_estimated_delivery 
+----------------+---------------------+---------------------+---------------------+---------------------+-------------------------
+ E1. date range | 2016-09-04 21:15:19 | 2018-10-17 17:30:18 | 2016-10-11 13:46:32 | 2018-10-17 13:22:46 | 2018-11-12 00:00:00
+(1 row)
+
+       section        | purchase_month | orders 
+----------------------+----------------+--------
+ E2. orders per month | 2016-09-01     |      4
+ E2. orders per month | 2016-10-01     |    324
+ E2. orders per month | 2016-12-01     |      1
+ E2. orders per month | 2017-01-01     |    800
+ E2. orders per month | 2017-02-01     |   1780
+ E2. orders per month | 2017-03-01     |   2682
+ E2. orders per month | 2017-04-01     |   2404
+ E2. orders per month | 2017-05-01     |   3700
+ E2. orders per month | 2017-06-01     |   3245
+ E2. orders per month | 2017-07-01     |   4026
+ E2. orders per month | 2017-08-01     |   4331
+ E2. orders per month | 2017-09-01     |   4285
+ E2. orders per month | 2017-10-01     |   4631
+ E2. orders per month | 2017-11-01     |   7544
+ E2. orders per month | 2017-12-01     |   5673
+ E2. orders per month | 2018-01-01     |   7269
+ E2. orders per month | 2018-02-01     |   6728
+ E2. orders per month | 2018-03-01     |   7211
+ E2. orders per month | 2018-04-01     |   6939
+ E2. orders per month | 2018-05-01     |   6873
+ E2. orders per month | 2018-06-01     |   6167
+ E2. orders per month | 2018-07-01     |   6292
+ E2. orders per month | 2018-08-01     |   6512
+ E2. orders per month | 2018-09-01     |     16
+ E2. orders per month | 2018-10-01     |      4
+(25 rows)
+
+    section     |                   check_name                   | value 
+----------------+------------------------------------------------+-------
+ E3. date logic | estimated delivery BEFORE purchase             |     0
+ E3. date logic | delivered to customer BEFORE handed to carrier |    23
+ E3. date logic | delivered to customer BEFORE purchase          |     0
+(3 rows)
+
+          section          | orders | with_time_component | delivery_with_time_component 
+---------------------------+--------+---------------------+------------------------------
+ E4. estimated date format |  99441 |                   0 |                        96476
+(1 row)
+
+      section       |                  step                  | orders 
+--------------------+----------------------------------------+--------
+ F. scope waterfall | 1. all orders                          |  99441
+ F. scope waterfall | 2. status = delivered                  |  96478
+ F. scope waterfall | 3. delivered and delivery date present |  96470
+ F. scope waterfall | 4. ...and has at least one review      |  95824
+(4 rows)
+
+         section         | delivered_orders | multi_seller_orders | pct_multi_seller | multi_item_orders | pct_multi_item 
+-------------------------+------------------+---------------------+------------------+-------------------+----------------
+ G1. multi-seller orders |            96470 |                1275 |             1.32 |              9635 |           9.99
+(1 row)
+
+        section        | sellers | min_orders | median_orders | max_orders | sellers_10_plus | sellers_30_plus | sellers_50_plus | sellers_100_plus 
+-----------------------+---------+------------+---------------+------------+-----------------+-----------------+-----------------+------------------
+ G2. orders per seller |    2970 |          1 |           7.0 |       1819 |            1237 |             627 |             425 |              210
+(1 row)
+
+            section            | review_score | reviews 
+-------------------------------+--------------+---------
+ H1. review score distribution |            1 |   11424
+ H1. review score distribution |            2 |    3151
+ H1. review score distribution |            3 |    8179
+ H1. review score distribution |            4 |   19142
+ H1. review score distribution |            5 |   57328
+(5 rows)
+
+        section        | reviews_per_order | orders 
+-----------------------+-------------------+--------
+ H2. reviews per order |                 1 |  98126
+ H2. reviews per order |                 2 |    543
+ H2. reviews per order |                 3 |      4
+(3 rows)
+
+     section      | orders | min_days | median_days | p95_days | p99_days | max_days 
+------------------+--------+----------+-------------+----------+----------+----------
+ I. delivery days |  96470 |        0 |        10.0 |     29.0 |     46.0 |      210
+(1 row)
+
+      section       | delivered_orders | late_by_timestamp | late_by_date | pct_late_by_timestamp | pct_late_by_date 
+--------------------+------------------+-------------------+--------------+-----------------------+------------------
+ J. late definition |            96470 |              7826 |         6534 |                  8.11 |             6.77
+(1 row)
+

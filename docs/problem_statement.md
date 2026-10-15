@@ -5,7 +5,7 @@
 | **Project** | Olist delivery performance and customer satisfaction analysis |
 | **Dataset** | Brazilian E-Commerce Public Dataset by Olist (Kaggle) |
 | **Tools** | PostgreSQL, Python (pandas, seaborn, scipy), Power BI |
-| **Document status** | Draft v1, written before data loading. Items marked *To confirm* are verified during the data quality phase and recorded in `docs/data_quality_notes.md`. |
+| **Document status** | Draft v2, updated after the data quality checks. Evidence for every decision is in [`data_quality_notes.md`](data_quality_notes.md). |
 
 ---
 
@@ -13,7 +13,7 @@
 
 Olist is a Brazilian e-commerce marketplace. Small and mid-sized sellers list their products on the Olist store, and customers buy from them. When an order is placed, the seller is notified and ships the product to the customer through a logistics partner. After the customer receives the product, or once the estimated delivery date has passed, the customer is sent a satisfaction survey and can rate the experience from 1 to 5.
 
-The public dataset contains roughly 100,000 orders placed between 2016 and 2018 (exact date range *to confirm*), spread across nine related tables: orders, order items, customers, sellers, products, payments, reviews, geolocation, and a product category translation table. The data is anonymized.
+The public dataset contains 99,441 orders placed between September 2016 and October 2018, spread across nine related tables: orders, order items, customers, sellers, products, payments, reviews, geolocation, and a product category translation table. The data is anonymized. Order volume is very low before 2017 and after August 2018, so trend analysis focuses on January 2017 to August 2018.
 
 Delivery is the part of the experience that the marketplace controls least and the customer notices most. When an order arrives later than promised, the customer's rating is likely to suffer, and ratings influence repeat purchases and seller reputation. This project measures how large that effect is and where it comes from.
 
@@ -30,6 +30,8 @@ Delivery is the part of the experience that the marketplace controls least and t
 3. Which customer states (regions) and product categories have the highest late delivery rates?
 4. By how much do review scores fall when an order is late, and does the drop grow with the length of the delay?
 5. How much revenue is attached to late orders, and which segments carry most of that exposure?
+
+**Starting point.** Across all delivered orders in scope, 6.77% (6,534 of 96,470) arrive after the estimated delivery date. The analysis breaks this baseline down by seller, region, category, and time.
 
 ## 3. Stakeholders and Decisions Supported
 
@@ -54,16 +56,19 @@ Each hypothesis is a testable guess. The analysis will confirm or reject it, and
 
 ## 5. Scope and Analytical Decisions
 
+All decisions below were checked against the loaded data. Evidence and numbers are in [`data_quality_notes.md`](data_quality_notes.md).
+
 | Decision | Choice | Rationale | Trade-off | Status |
 |---|---|---|---|---|
-| Order scope | Orders with status `delivered` and a non-null customer delivery date | Lateness is only defined once an order has actually been delivered. | Canceled, unavailable, and in-transit orders are excluded; the excluded count will be documented. | Final |
-| Definition of "late" | Delivery date is later than the estimated delivery date, compared at **date level** (time of day ignored) | The estimated date is typically stored without a time (midnight), while the delivery date has a full timestamp. Comparing raw timestamps would flag an order delivered on the promised day, in the afternoon, as late. | Slightly more lenient than a strict timestamp comparison. | Final (confirm timestamp format in data quality phase) |
-| Seller attribution | An order counts toward **every seller** who has an item in that order | Simple and keeps all data in the seller analysis. | In multi-seller orders, one seller's delay is counted against the others as well, which can overstate blame. | Provisional. Revisit after measuring the share of multi-seller orders. |
-| Review handling | One review per order: the **most recent** by creation date | Some orders have more than one review; a single value per order keeps order-level averages correct. | Earlier reviews are ignored. | Final (confirm duplicate counts in data quality phase) |
+| Order scope | Orders with status `delivered` and a non-null customer delivery date: **96,470 of 99,441 orders (97.0%)** | Lateness is only defined once an order has actually been delivered. Of the 96,478 delivered orders, 8 have no delivery date. | The remaining 2,971 orders (canceled, shipped, unavailable, and other statuses, plus the 8 above) are excluded from lateness metrics. | Final |
+| Definition of "late" | Delivery date is later than the estimated delivery date, compared at **date level** (time of day ignored) | Every estimated date is at midnight (0 of 99,441 have a time of day), while delivery dates carry a full timestamp. A raw comparison would label orders delivered on the promised day as late: it gives 8.11% late (7,826 orders) against 6.77% (6,534 orders) at date level, a difference of 1,292 orders. | Slightly more lenient than a strict timestamp comparison. | Final |
+| Seller attribution | An order counts toward **every seller** who has an item in that order | Only 1.32% of delivered orders (1,275 of 96,470) involve more than one seller, so the distortion is small and the rule keeps all data in the seller analysis. | In those 1,275 orders, one seller's delay is counted against the other sellers as well. | Final |
+| Review handling | One review per order: the **most recent** by creation date | 547 orders have more than one review, and 789 review IDs repeat, so `review_id` cannot be used as a key. | Earlier reviews are ignored. Orders without a review (646 in scope) are excluded from review metrics, not scored as zero. | Final |
 | Revenue measure | Sum of item `price`, excluding freight | Isolates product revenue; freight is tracked separately. | Total customer spend is understated if freight is considered revenue. | Final |
-| Seller ranking threshold | Sellers need a minimum number of delivered orders to be ranked | Without a floor, a seller with one late order would show a 100% late rate and distort the ranking. | Very small sellers are not evaluated. | Provisional. Threshold set after inspecting the distribution of orders per seller. |
-| Time window | Full available period; incomplete months at the start and end are flagged and excluded from trend charts | The earliest and latest months in the data are sparse and would distort trends. | Fewer data points in the trend view. | Provisional (confirm after checking monthly order counts) |
+| Seller ranking threshold | Sellers need at least **50 delivered orders** to be ranked | With a late rate near 6.8%, a seller's measured rate has a standard error of about 3.6 percentage points at 50 orders (4.6 at 30). A threshold of 50 keeps 425 of 2,970 sellers, a workable ranking without letting a few orders decide a position. | Sellers below the threshold are not ranked, but their orders still count in all totals. | Final, with a sensitivity check at 30 and 100 orders planned |
+| Time window | Trends and growth metrics cover **January 2017 to August 2018**. Headline KPIs use all delivered orders in scope. | The first four months of data (2016) and the last two (September and October 2018) are sparse: 349 orders in total (0.35%), with none in November 2016. | Month-over-month growth starts in February 2017, and year-over-year growth is only available for January to August 2018. | Final |
 | Fact table grain (Power BI) | One row per order item | Items link directly to products and sellers, which keeps the star schema simple. | Order-level measures need distinct counts to avoid double counting. | Final |
+| Missing categories | Products with a missing category (610) or without an English translation (13 products in 2 categories) are labeled "unknown" | Keeps every product in the category view. | Those 13 products lose their original category name; the effect is negligible. | Final |
 | Currency | Brazilian real (BRL), no conversion | The dataset is in one currency. | Not directly comparable with other markets. | Final |
 
 ## 6. Key Performance Indicators
@@ -81,17 +86,22 @@ The full definitions, formulas, and logic for each metric are in [`kpi_definitio
 
 ## 7. Known Data Caveats
 
-| Caveat | Why it matters | Planned handling | Status |
-|---|---|---|---|
-| `customer_id` is generated per order; `customer_unique_id` identifies the actual customer | Using the wrong key miscounts customers and repeat behavior | Use `customer_unique_id` whenever customer-level analysis is needed | To confirm |
-| Orders can include items from more than one seller | Delay attribution to a single seller is ambiguous | See the seller attribution decision above | To confirm |
-| Some orders have more than one review, and `review_id` may not be unique | Duplicates inflate review counts and skew averages | Keep the latest review per order | To confirm |
-| Not all orders are delivered | Lateness is undefined for undelivered orders | Restrict to delivered orders and document exclusions | To confirm |
-| Some delivered orders may have a missing delivery date | Late flag cannot be computed | Exclude and document the count | To confirm |
-| Estimated delivery date may lack a time component | Naive timestamp comparison could mislabel same-day deliveries | Compare at date level | To confirm |
-| Category names are in Portuguese; some may lack a translation | English labels are needed for reporting | Join the translation table; label missing ones as "unknown" | To confirm |
-| The first and last months of the data are sparse | Distorts trend and growth metrics | Exclude partial months from trend views | To confirm |
-| The geolocation table has many rows per zip prefix | Joining it directly would duplicate rows | Use customer and seller state columns instead of joining geolocation | To confirm |
+All caveats below were tested against the loaded data (see [`data_quality_notes.md`](data_quality_notes.md)).
+
+| Caveat | Why it matters | Handling | Evidence | Status |
+|---|---|---|---|---|
+| `customer_id` is generated per order; `customer_unique_id` identifies the actual customer | Using the wrong key miscounts customers and repeat behavior | Use `customer_unique_id` for any customer-level analysis | 99,441 `customer_id` values vs 96,096 `customer_unique_id` values | Confirmed |
+| Orders can include items from more than one seller | Delay attribution to a single seller is ambiguous | See the seller attribution decision | 1.32% of delivered orders | Confirmed |
+| Some orders have more than one review, and `review_id` is not unique | Duplicates inflate review counts and skew averages | Keep the latest review per order | 547 orders with multiple reviews; 789 repeated review IDs | Confirmed |
+| Not all orders are delivered | Lateness is undefined for undelivered orders | Restrict to delivered orders and document exclusions | 96,478 of 99,441 orders are delivered | Confirmed |
+| Some delivered orders have no delivery date | The late flag cannot be computed | Exclude and document the count | 8 orders | Confirmed |
+| Estimated delivery date has no time component | A raw timestamp comparison would mislabel same-day deliveries | Compare at date level | 0 of 99,441 estimates have a time of day | Confirmed |
+| Some orders have no review | Review metrics cannot be computed for them | Exclude from review metrics | 646 delivered orders in scope | Confirmed |
+| A few delivery dates precede the carrier handover date | The sequence of dates is inconsistent | Keep for lateness; exclude from any carrier-date analysis | 23 orders | Confirmed |
+| Category names are in Portuguese; some are missing or untranslated | English labels are needed for reporting | Join the translation table; label the rest "unknown" | 610 products without a category; 2 categories without a translation | Confirmed |
+| The first and last months of the data are sparse | Distorts trend and growth metrics | Limit trend views to January 2017 to August 2018 | 349 orders in the sparse months | Confirmed |
+| Delivery times have a long tail | The average is pulled up by a few very late orders | Report the median and percentiles alongside the average | Median 10 days, 99th percentile 46 days, maximum 210 days | Confirmed |
+| The geolocation table has a very large number of rows | Joining it directly could multiply rows | Not used; state columns from `customers` and `sellers` cover the regional analysis | 1,000,163 rows | Not used in this project |
 
 ## 8. Deliverables
 
@@ -107,10 +117,11 @@ The full definitions, formulas, and logic for each metric are in [`kpi_definitio
 - **No cost data.** The dataset has no carrier or penalty costs, so the financial impact is expressed as revenue exposure, not profit.
 - **Historical data.** The data covers 2016 to 2018; recommendations are illustrative and show the method, not current Olist performance.
 - **Survey bias.** Only customers who answered the survey have a review score, and they may not represent all customers.
+- **Growth in volume.** Order volume grew strongly through 2017, so monthly counts reflect marketplace growth as well as performance. Rates are more comparable over time than counts.
 
 ## 10. Success Criteria
 
 - Every number in the final report can be traced to a documented query or measure.
-- Headline metrics (late rate, average review score, order count) match across SQL, Python, and Power BI.
-- Every analytical decision in section 5 has a written rationale.
+- Headline metrics (late rate, average review score, order count) match across SQL, Python, and Power BI. Reference values: 96,470 orders in scope, 6,534 late orders, 6.77% late rate.
+- Every analytical decision in section 5 has a written rationale backed by the data.
 - The final recommendations name specific sellers, regions, or categories and quantify the expected impact.
