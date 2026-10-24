@@ -1,0 +1,112 @@
+ customer_state | orders | late_orders | late_pct | pct_of_all_orders | low_volume 
+----------------+--------+-------------+----------+-------------------+------------
+ AL             |    397 |          85 |    21.41 |              0.41 | f
+ MA             |    717 |         125 |    17.43 |              0.74 | f
+ SE             |    335 |          51 |    15.22 |              0.35 | f
+ PI             |    476 |          66 |    13.87 |              0.49 | f
+ CE             |   1279 |         176 |    13.76 |              1.33 | f
+ RR             |     41 |           5 |    12.20 |              0.04 | t
+ BA             |   3256 |         396 |    12.16 |              3.38 | f
+ RJ             |  12350 |        1495 |    12.11 |             12.80 | f
+ PA             |    946 |         106 |    11.21 |              0.98 | f
+ ES             |   1995 |         214 |    10.73 |              2.07 | f
+ PB             |    517 |          54 |    10.44 |              0.54 | f
+ TO             |    274 |          27 |     9.85 |              0.28 | f
+ MS             |    701 |          68 |     9.70 |              0.73 | f
+ PE             |   1593 |         153 |     9.60 |              1.65 | f
+ RN             |    474 |          44 |     9.28 |              0.49 | f
+ SC             |   3546 |         291 |     8.21 |              3.68 | f
+ GO             |   1957 |         128 |     6.54 |              2.03 | f
+ RS             |   5344 |         325 |     6.08 |              5.54 | f
+ MT             |    886 |          53 |     5.98 |              0.92 | f
+ DF             |   2080 |         118 |     5.67 |              2.16 | f
+ MG             |  11354 |         519 |     4.57 |             11.77 | f
+ SP             |  40494 |        1820 |     4.49 |             41.98 | f
+ PR             |   4923 |         199 |     4.04 |              5.10 | f
+ AC             |     80 |           3 |     3.75 |              0.08 | t
+ AP             |     67 |           2 |     2.99 |              0.07 | t
+ RO             |    243 |           7 |     2.88 |              0.25 | f
+ AM             |    145 |           4 |     2.76 |              0.15 | f
+(27 rows)
+
+                category                 | orders | late_orders | late_pct 
+-----------------------------------------+--------+-------------+----------
+ audio                                   |    348 |          41 |    11.78
+ home_confort                            |    392 |          37 |     9.44
+ fashion_underwear_beach                 |    117 |          11 |     9.40
+ books_technical                         |    256 |          21 |     8.20
+ baby                                    |   2809 |         226 |     8.05
+ office_furniture                        |   1254 |         101 |     8.05
+ christmas_supplies                      |    125 |          10 |     8.00
+ electronics                             |   2517 |         192 |     7.63
+ musical_instruments                     |    611 |          46 |     7.53
+ health_beauty                           |   8647 |         649 |     7.51
+ furniture_living_room                   |    414 |          31 |     7.49
+ bed_bath_table                          |   9272 |         689 |     7.43
+ watches_gifts                           |   5493 |         406 |     7.39
+ construction_tools_construction         |    736 |          54 |     7.34
+ auto                                    |   3809 |         278 |     7.30
+ unknown                                 |   1412 |         102 |     7.22
+ furniture_decor                         |   6307 |         449 |     7.12
+ telephony                               |   4093 |         291 |     7.11
+ food                                    |    441 |          31 |     7.03
+ industry_commerce_and_business          |    231 |          16 |     6.93
+ construction_tools_lights               |    242 |          16 |     6.61
+ sports_leisure                          |   7529 |         495 |     6.57
+ perfumery                               |   3086 |         202 |     6.55
+ stationery                              |   2264 |         148 |     6.54
+ garden_tools                            |   3448 |         225 |     6.53
+ books_general_interest                  |    495 |          32 |     6.46
+ computers_accessories                   |   6529 |         417 |     6.39
+ toys                                    |   3803 |         243 |     6.39
+ home_appliances_2                       |    227 |          14 |     6.17
+ art                                     |    195 |          12 |     6.15
+ consoles_games                          |   1018 |          62 |     6.09
+ home_construction                       |    483 |          29 |     6.00
+ cool_stuff                              |   3559 |         210 |     5.90
+ computers                               |    177 |          10 |     5.65
+ fashion_bags_accessories                |   1820 |         102 |     5.60
+ housewares                              |   5743 |         308 |     5.36
+ costruction_tools_garden                |    190 |          10 |     5.26
+ drinks                                  |    287 |          15 |     5.23
+ pet_shop                                |   1688 |          86 |     5.09
+ small_appliances                        |    609 |          29 |     4.76
+ fixed_telephony                         |    212 |          10 |     4.72
+ fashion_male_clothing                   |    106 |           5 |     4.72
+ fashion_shoes                           |    235 |          11 |     4.68
+ kitchen_dining_laundry_garden_furniture |    241 |          11 |     4.56
+ home_appliances                         |    747 |          33 |     4.42
+ signaling_and_security                  |    138 |           6 |     4.35
+ luggage_accessories                     |   1019 |          44 |     4.32
+ air_conditioning                        |    246 |          10 |     4.07
+ market_place                            |    274 |          11 |     4.01
+ agro_industry_and_commerce              |    177 |           7 |     3.95
+ food_drink                              |    221 |           8 |     3.62
+ construction_tools_safety               |    159 |           4 |     2.52
+(52 rows)
+
+ customer_state |       category        | orders | late_orders | late_pct 
+----------------+-----------------------+--------+-------------+----------
+ AL             | health_beauty         |     62 |          19 |    30.65
+ MA             | health_beauty         |     82 |          20 |    24.39
+ MA             | sports_leisure        |     58 |          12 |    20.69
+ RJ             | audio                 |     54 |          11 |    20.37
+ CE             | auto                  |     53 |          10 |    18.87
+ BA             | auto                  |    145 |          26 |    17.93
+ MA             | watches_gifts         |     56 |          10 |    17.86
+ BA             | stationery            |     74 |          13 |    17.57
+ CE             | health_beauty         |    152 |          26 |    17.11
+ RJ             | electronics           |    393 |          67 |    17.05
+ CE             | computers_accessories |     79 |          13 |    16.46
+ CE             | bed_bath_table        |     67 |          11 |    16.42
+ RJ             | home_confort          |     56 |           9 |    16.07
+ PI             | health_beauty         |     50 |           8 |    16.00
+ RJ             | baby                  |    334 |          53 |    15.87
+(15 rows)
+
+ shipping_type | seller_order_rows | late_orders | late_pct 
+---------------+-------------------+-------------+----------
+ Cross-state   |             62630 |        4980 |     7.95
+ Same state    |             35181 |        1567 |     4.45
+(2 rows)
+
